@@ -1,9 +1,23 @@
 <script setup>
-const model = defineModel();
+import { onMounted, onUnmounted, onUpdated } from "vue";
+
+const data = defineModel({ type: String, required: true });
+
+onMounted(() => {
+  console.log("Input mounted");
+});
+
+onUpdated(() => {
+  console.log("Input updated");
+});
+
+onUnmounted(() => {
+  console.log("Input unmounted");
+});
 </script>
 
 <template>
-  <input v-model="model" class="input" />
+  <input v-model="data" class="input" />
 </template>
 
 <style scoped lang="scss">

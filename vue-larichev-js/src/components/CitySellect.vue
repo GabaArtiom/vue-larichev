@@ -1,12 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import Button from "./Button.vue";
 import Input from "./Input.vue";
 
 // const emit = defineEmits(['select-city'])
 const emit = defineEmits({
   selectCity(payload) {
-    console.log(`Validating payload: ${payload}`);
     return payload;
   },
 });
@@ -14,14 +13,26 @@ const emit = defineEmits({
 const city = ref("Moscow");
 const isEdited = ref(false);
 
+onMounted(() => {
+  emit("selectCity", city.value);
+});
+
 function select() {
   isEdited.value = false;
-  emit("selectCity", "New-York");
+  emit("selectCity", city.value);
 }
 
 function edit() {
   isEdited.value = true;
 }
+
+// onMounted(() => {
+//   console.log("City select mounted");
+// });
+//
+// onUpdated(() => {
+//   console.log("City select mounted");
+// });
 </script>
 
 <template>

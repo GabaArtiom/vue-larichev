@@ -26,6 +26,8 @@ import Stat from "./components/Stat.vue";
 import CitySellect from "./components/CitySellect.vue";
 import { computed, ref } from "vue";
 
+cosnt API_ENDPOINT
+
 const savedCity = ref("Moscow");
 const data = ref({
   humidity: 90,
@@ -51,8 +53,6 @@ const dataModified = computed(() => {
 });
 
 async function getCity(city) {
-  savedCity.value = city;
-  data.value.humidity = 10;
 }
 </script>
 
