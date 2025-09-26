@@ -1,61 +1,22 @@
 <script setup>
-// // Есть unwrap
-// const counter = reactive({
-//   count: ref(0),
-// });
-// counter.count++;
-//
-// // Нет unwrap
-// const map = reactive(new Map([["count", ref(0)]]));
-// map.get("count").value;
-//
-// // Нет unwrap
-// const arr = reactive([ref(0)]);
-// arr[0].value;
-//
-// const obj = { id: ref(1) };
-// const id = obj.id
-
-// const arr = ref(["Max", "Anton", "Artiom"]);
-// const obj = ref({
-//   name: "Artiom",
-//   age: 18,
-// });
-
-import Stat from "./components/Stat.vue";
-import CitySellect from "./components/CitySellect.vue";
-import { computed, ref } from "vue";
-import Error from "./components/Error.vue";
-import DayCard from "./components/DayCard.vue";
-
-const API_ENDPOINT = "https://api.weatherapi.com/v1";
-
-const errorMap = new Map([[1006, "Указанный город не найден"]]);
+import { onMounted, provide, ref, watch } from "vue";
+import PaneRight from "./components/PaneRight.vue";
+import { API_ENDPOINT, cityProvide } from "./constants";
+import PaneLeft from "./components/PaneLeft.vue";
 
 const data = ref();
 const error = ref();
-const errorDisplay = computed(() => {
-  return errorMap.get(error.value?.error?.code);
+const activeIndex = ref(0);
+
+let city = ref("Москва");
+provide(cityProvide, city);
+
+watch(city, () => {
+  getCity(city.value);
 });
 
-const dataModified = computed(() => {
-  if (!data.value) {
-    return [];
-  }
-  return [
-    {
-      label: "Влажность",
-      stat: data.value.current.humidity + " %",
-    },
-    {
-      label: "Облачность",
-      stat: data.value.current.cloud + " %",
-    },
-    {
-      label: "Ветер",
-      stat: data.value.current.wind_mph + " м/ч",
-    },
-  ];
+onMounted(() => {
+  getCity(city.value);
 });
 
 async function getCity(city) {
@@ -78,35 +39,39 @@ async function getCity(city) {
 </script>
 
 <template>
-  <!-- <ul> -->
-  <!--   <li v-for="(item, index) in arr" :key="index">{{ index }}: {{ item }}</li> -->
-  <!--   <li v-for="(value, key, index) in obj" :key="key">{{ index }}: {{ value }}, {{ key }}</li> -->
-  <!-- </ul> -->
   <div class="card">
+    <div class="card__left">
+      <PaneLeft
+        v-if="data"
+        :day-data="data.forecast.forecastday[activeIndex]"
+      />
+    </div>
     <div class="card__right">
-      <Error :error="errorDisplay" />
-      <!-- <IconRain /> -->
-      <!-- <IconCloud /> -->
-      <div v-if="data">
-        <Stat v-for="(item, index) in dataModified" v-bind="item" :key="index" />
-        <div>
-          <DayCard
-            v-for="item in data.forecast.forecastday"
-            :key="item.date"
-            :weather-code="item.day.condition.code"
-            :temp="item.day.avgtemp_c"
-            :date="new Date(item.date)" />
-        </div>
-      </div>
-      <CitySellect @select-city="getCity" />
+      <PaneRight
+        :data
+        :error
+        :active-index="activeIndex"
+        @select-index="(index) => (activeIndex = index)"
+      />
     </div>
   </div>
 </template>
 
-<div></div>
-
 <style scoped lang="scss">
 .card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__left {
+    width: 500px;
+    height: 660px;
+    border-radius: 30px;
+    background-image: url(/bg.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
   &__right {
     padding: 60px 50px;
     border-radius: 25px;
